@@ -6,17 +6,18 @@ use warnings;
 use Time::HiRes qw/ sleep time /;
 use DateTime;
 
+my $res = "640x360";
 
 my $ffmpeg = fork() // die $!;
 
 if ($ffmpeg==0) {
 	my $vp9="-speed 6 -tile-columns 4 -frame-parallel 1 -threads 3 -static-thresh 0 -max-intra-rate 300 -deadline realtime -lag-in-frames 0 -error-resilient 1";
-	exec(qq{ffmpeg -f v4l2 -input_format mjpeg -r 30 -s 640x360 -thread_queue_size 1024 -i /dev/video0 }.
+	exec(qq{ffmpeg -f v4l2 -input_format mjpeg -r 30 -s $res -thread_queue_size 1024 -i /dev/video0 }.
              qq{-f alsa -ar 48000 -ac 1 -thread_queue_size 1024 -i pulse }.
              qq{-map 0:0 }.
              qq{-pix_fmt yuv420p }.
              qq{-c:v libvpx-vp9 }.
-             qq{-s 640x360 -keyint_min 60 -g 60 $vp9 }.
+             qq{-s $res -keyint_min 60 -g 60 $vp9 }.
              qq{-b:v 1000k }.
              qq{-aspect 16:9 }.
              qq{-f webm_chunk }.
